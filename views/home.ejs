@@ -1,0 +1,15 @@
+<%- include partials/header.ejs %>
+<h1>Home</h1>
+<p> <%= startingContent %> </p>
+
+<% newVariable.forEach(function(i){ %>
+    <h1><%= i.title %></h1>
+    <p><%= i.body.substring(0, 100) + "..." %> </p> 
+    <a href="/<%= i.title %>">Read More</a>
+<% } ) %>
+
+
+
+<!-- <% for(let i=0; i< newVariable.length ; i++){console.log(newVariable[i].title)} %> -->
+ 
+<%- include partials/footer.ejs %>
