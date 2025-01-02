@@ -27,21 +27,30 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.set("view engine", "ejs");
-app.get("/", function (req, res) {
-  res.render("home", {
-    startingContent: homeStartingContent,
-    newVariable: posts,
-  });
-  Post.find(function (error, pust) {
-    if (error) {
-      console.log(error);
-    } else {
-      res.render("home", {
-        startingContent: homeStartingContent,
-        newVariable: posts, //pust
-      });
-    }
-  });
+// app.get("/", function (req, res) {
+//   Post.find({}, function (error, pust) {
+//     if (error) {
+//       console.log(error);
+//     } else {
+//       res.render("home", {
+//         startingContent: homeStartingContent,
+//         newVariable: pust,
+//       });
+//     }
+//   });
+// });
+
+app.get("/", async function (req, res) {
+  try {
+    const posts = await Post.find({});
+    res.render("home", {
+      startingContent: homeStartingContent,
+      newVariable: posts,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("An error occurred while fetching posts.");
+  }
 });
 
 app.get("/about", function (req, res) {
@@ -69,30 +78,23 @@ app.post("/compose", function (req, res) {
   });
 });
 
-app.get("/posts/:postID", function (req, res) {
+app.get("/posts/:postID", async function (req, res) {
   const requestedPostID = req.params.postID;
-  Post.findById(requestedPostID, function (error, post) {
-    if (!err) {
-      if (post) {
-        res.render("post", {
-          title: post.title,
-          content: post.content,
-        });
-      } else {
-        res.status(404).send("Post not Found!");
-      }
-    }
-  });
-  const idd = _.lowerCase(req.params.any);
-  posts.forEach(function (i) {
-    const titleCase = _.lowerCase(i.title);
-    if (titleCase == idd) {
+
+  try {
+    const post = await Post.findById(requestedPostID); // Use await to handle the promise.
+    if (post) {
       res.render("post", {
-        title: i.title,
-        content: i.body,
+        title: post.title,
+        content: post.content,
       });
+    } else {
+      res.status(404).send("Post not Found!");
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while fetching the post.");
+  }
 });
 
 app.listen(3000, function () {

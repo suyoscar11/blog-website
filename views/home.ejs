@@ -4,8 +4,8 @@
 
 <% newVariable.forEach(function(i){ %>
     <h1><%= i.title %></h1>
-    <p><%= i.body.substring(0, 100) + "..." %> </p> 
-    <a href="/posts/<%= i._id %>">Read More</a>
+    <p><%= i.content.substring(0, 100) + "..." %> </p>  <a href="/posts/<%= i._id %>">Read More</a>
+   
 <% } ) %>
 
 
