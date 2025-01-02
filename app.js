@@ -26,13 +26,21 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-var posts = [];
-
 app.set("view engine", "ejs");
 app.get("/", function (req, res) {
   res.render("home", {
     startingContent: homeStartingContent,
     newVariable: posts,
+  });
+  Post.find(function (error, pust) {
+    if (error) {
+      console.log(error);
+    } else {
+      res.render("home", {
+        startingContent: homeStartingContent,
+        newVariable: posts, //pust
+      });
+    }
   });
 });
 
@@ -48,21 +56,33 @@ app.get("/compose", function (req, res) {
 });
 
 app.post("/compose", function (req, res) {
-  const messageRequest = {
-    title: req.body.userInput,
-    body: req.body.multiText,
-  };
-
-  posts.push(messageRequest);
-  res.redirect("/");
-  const post = new Post({
+  const postOfcompose = new Post({
     title: req.body.userInput,
     content: req.body.multiText,
   });
-  post.save();
+  postOfcompose.save(function (err) {
+    if (!err) {
+      res.redirect("/");
+    } else {
+      console.log(err);
+    }
+  });
 });
 
-app.get("/:any", function (req, res) {
+app.get("/posts/:postID", function (req, res) {
+  const requestedPostID = req.params.postID;
+  Post.findById(requestedPostID, function (error, post) {
+    if (!err) {
+      if (post) {
+        res.render("post", {
+          title: post.title,
+          content: post.content,
+        });
+      } else {
+        res.status(404).send("Post not Found!");
+      }
+    }
+  });
   const idd = _.lowerCase(req.params.any);
   posts.forEach(function (i) {
     const titleCase = _.lowerCase(i.title);
